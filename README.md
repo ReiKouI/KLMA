@@ -23,7 +23,7 @@
   <!-- upload.vue -->
   <template>
       <div>
-          <form  enctype="multipart/form-data" method="POST" action="upload-api">
+          <form  enctype="multipart/form-data" method="POST" action="upload-url">
               <input type="text" :value="param1">
               <input type="text" :value="param2">
               <input type="file" @change="getFile($event)">
@@ -51,8 +51,8 @@
           onSubmit: function(e) {
               e.preventDefault(); // Prevent the page from reloading
               let formData = new FormData();
-              formData.append("categoryId", this.param1);
-              formData.append("lexiconName", this.param2);
+              formData.append("param1", this.param1);
+              formData.append("param2", this.param2);
               formData.append("file", this.file);
 
               let config = {
@@ -60,7 +60,7 @@
                       "Content-Type": "multipart/form-data"
                   }
               };
-              this.$http.post("upload-api", formData, config).then(function(res) {
+              this.$http.post("upload-url", formData, config).then(function(res) {
                   if(res.status === 200) {
                       /* If upload succeeded */
                   } else {
@@ -114,7 +114,7 @@
     data['param1'] = "param1";
     data['param2'] = 2;
     $.post({
-      url: "post-api",
+      url: "post-url",
       data: JSON.stringify(data),
       contentType: 'application/JSON',
       success: function(res) {
@@ -123,6 +123,126 @@
     });
   }
   ```
+
+
+> Sticky footer
+
+* Utilization of `calc` tag ( which is not *elegant* )
+
+  ```vue
+  <template>
+    <div id="app">
+      <div class="header">This is header</div>
+      <div class="content">This is content</div>
+      <div class="footer">This is footer</div>
+    </div>
+  </template>
+  <style lang="stylus">
+  #app
+    .content
+      min-height calc(100vh - 50px)
+    .footer
+      height 50px
+  </style>
+  ```
+
+
+> Shared state with vuex
+
+* Install vuex
+
+  ```shell
+  npm install --save vuex
+  ```
+
+* Import vuex
+
+  ```javascript
+  // store/index.js
+  import Vue from 'vue'
+  import vuex from 'vuex'
+
+  Vue.use(vuex)
+
+  const state = {
+      userInfo: {
+          userId: '',
+          nickName: '',
+          planId: ''
+      },
+      hasLoggedIn: false
+  }
+
+  const mutations = {
+    	// be carefully to use the parameter as only one object parameter can be passed
+      saveUserInfo(state, data) {
+          state.userInfo.userId = data.id;
+          state.userInfo.nickName = data.nickname;
+          state.userInfo.planId = data.planId;
+      },
+      setLoginState(state, data) {
+          state.hasLoggedIn = data;
+      }
+  }
+
+  export default new vuex.Store({
+      state, 
+      mutations,
+  })
+  ```
+
+* Register vuex store
+
+  ```javascript
+  // main.js
+  ...
+  import store from './store'
+  ...
+  new Vue({
+    router,
+    store,
+    render: h => h(App)
+  }).$mount('#app')
+  ```
+
+* Update state
+
+  ```vue
+  <template>
+  	...
+  </template>
+  <script>
+  import { mapMutations, mapState } from 'vuex'
+  export default {
+    computed: mapState({
+      userInfo: state => state.userInfo  
+    }),
+    methods: {
+      // Similiar to reflection in Java
+      ...mapMutations([
+        'saveUserInfo',
+        'setLoginState'
+      ]),
+      login: function() {
+          let data = {};
+          let _this = this;	// Notice pointers "this" points to different objects
+          $.post({
+            url: 'api-url',
+            data: JSON.stringify(data),
+            contentType: 'application/JSON',
+            xhrFields: { withCredentials: true },		// Post with cookies
+            success: function(result) {
+  			_this.saveUserInfo(result.data);
+              _this.setLoginState(true);
+            }
+          })
+      }
+    }
+  }
+  </script>
+  ```
+
+  ​
 
   ​
 
