@@ -174,7 +174,7 @@ public class WordController {
     @CrossOrigin(allowCredentials = "true")
     public Result updateReciteRecord(
             HttpServletResponse httpServletResponse,
-            ReciteRecordReqVo reciteRecordReqVo,
+            @RequestBody ReciteRecordReqVo reciteRecordReqVo,
             @CookieValue(value = "token", required = false) String cookieToken,
             @RequestParam(value = "token", required = false) String paramToken
     ) {
