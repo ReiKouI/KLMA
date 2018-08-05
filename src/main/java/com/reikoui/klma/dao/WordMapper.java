@@ -1,6 +1,7 @@
 package com.reikoui.klma.dao;
 
 import com.reikoui.klma.domain.Word;
+import com.reikoui.klma.domain.WordsRecord;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -54,5 +55,9 @@ public interface WordMapper {
      */
     @Select("select * from word where person_lexicon_id = #{personLexiconId} and coefficient = 0 order by rand() limit #{num}")
     List<Word> listNewWords(@Param("personLexiconId")int personLexiconId, @Param("num") int num);
+
+
+    void updateWordsListByWord(WordsRecord wordsRecord);
+
 
 }
